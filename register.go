@@ -86,8 +86,8 @@ func RouteRegister(rg gin.IRouter, opts ...OptionFunc) error {
 	}
 	prefixRouter := rg.Group(s.root)
 	{
-		prefixRouter.GET(s.root+"/", gin.WrapF(IndexAtRoot(s.root)))
-		prefixRouter.GET(s.root+"/ws", gin.WrapH(NewWsHandler(s.freq)))
+		prefixRouter.GET("/", gin.WrapF(IndexAtRoot(s.root)))
+		prefixRouter.GET("/ws", gin.WrapH(NewWsHandler(s.freq)))
 	}
 	return nil
 }
