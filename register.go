@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hellobchain/statsviz/internal/static"
+	"github.com/hellobchain/statsviz/internal/static/static"
 )
 
 // RegisterDefault registers statsviz HTTP handlers on the default serve mux.
