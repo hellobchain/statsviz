@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 // RegisterDefault registers statsviz HTTP handlers on the default serve mux.
@@ -69,4 +71,23 @@ type server struct {
 func (s *server) register() {
 	s.mux.Handle(s.root+"/", IndexAtRoot(s.root))
 	s.mux.HandleFunc(s.root+"/ws", NewWsHandler(s.freq))
+}
+
+func RouteRegister(rg gin.IRouter, opts ...OptionFunc) error {
+	s := &server{
+		root: defaultRoot,
+		freq: defaultSendFrequency,
+	}
+
+	for _, opt := range opts {
+		if err := opt(s); err != nil {
+			return err
+		}
+	}
+	prefixRouter := rg.Group(s.root)
+	{
+		prefixRouter.GET(s.root+"/", gin.WrapF(IndexAtRoot(s.root)))
+		prefixRouter.GET(s.root+"/ws", gin.WrapH(NewWsHandler(s.freq)))
+	}
+	return nil
 }
