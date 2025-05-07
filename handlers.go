@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hellobchain/statsviz/internal/static/static"
+	"github.com/hellobchain/statsviz/internal/static"
 
 	"github.com/gorilla/websocket"
 )

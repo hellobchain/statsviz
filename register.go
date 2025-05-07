@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hellobchain/statsviz/internal/static/static"
+	"github.com/hellobchain/statsviz/internal/static"
 )
 
 // RegisterDefault registers statsviz HTTP handlers on the default serve mux.
@@ -99,6 +99,10 @@ func RouteRegister(rg gin.IRouter, opts ...OptionFunc) error {
 	prefixRouter := rg.Group(s.root)
 	{
 		prefixRouter.GET("/", gin.WrapF(IndexAtRootWithFs(s.root, s.fs)))
+		prefixRouter.GET("/css/*any", gin.WrapF(IndexAtRootWithFs(s.root, s.fs)))
+		prefixRouter.GET("/js/*any", gin.WrapF(IndexAtRootWithFs(s.root, s.fs)))
+		prefixRouter.GET("/libs/*any", gin.WrapF(IndexAtRootWithFs(s.root, s.fs)))
+		prefixRouter.GET("/index.html", gin.WrapF(IndexAtRootWithFs(s.root, s.fs)))
 		prefixRouter.GET("/ws", gin.WrapH(NewWsHandler(s.freq)))
 	}
 	return nil
