@@ -2,6 +2,7 @@ package statsviz
 
 import (
 	"bytes"
+	"embed"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -24,6 +25,12 @@ var Index = IndexAtRoot(defaultRoot)
 func IndexAtRoot(root string) http.HandlerFunc {
 	prefix := strings.TrimRight(root, "/") + "/"
 	assetsFS := http.FileServer(http.FS(static.Assets))
+	return http.StripPrefix(prefix, hijack(assetsFS)).ServeHTTP
+}
+
+func IndexAtRootWithFs(root string, fs embed.FS) http.HandlerFunc {
+	prefix := strings.TrimRight(root, "/") + "/"
+	assetsFS := http.FileServer(http.FS(fs))
 	return http.StripPrefix(prefix, hijack(assetsFS)).ServeHTTP
 }
 

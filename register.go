@@ -1,11 +1,13 @@
 package statsviz
 
 import (
+	"embed"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hellobchain/statsviz/internal/static"
 )
 
 // RegisterDefault registers statsviz HTTP handlers on the default serve mux.
@@ -36,6 +38,13 @@ func SendFrequency(freq time.Duration) OptionFunc {
 	}
 }
 
+func Fs(fs embed.FS) OptionFunc {
+	return func(s *server) error {
+		s.fs = fs
+		return nil
+	}
+}
+
 // An OptionFunc is a server configuration option.
 type OptionFunc func(s *server) error
 
@@ -50,6 +59,7 @@ func Register(mux *http.ServeMux, opts ...OptionFunc) error {
 		mux:  mux,
 		root: defaultRoot,
 		freq: defaultSendFrequency,
+		fs:   static.Assets,
 	}
 
 	for _, opt := range opts {
@@ -66,10 +76,11 @@ type server struct {
 	mux  *http.ServeMux
 	freq time.Duration
 	root string
+	fs   embed.FS
 }
 
 func (s *server) register() {
-	s.mux.Handle(s.root+"/", IndexAtRoot(s.root))
+	s.mux.Handle(s.root+"/", IndexAtRootWithFs(s.root, s.fs))
 	s.mux.HandleFunc(s.root+"/ws", NewWsHandler(s.freq))
 }
 
@@ -77,6 +88,7 @@ func RouteRegister(rg gin.IRouter, opts ...OptionFunc) error {
 	s := &server{
 		root: defaultRoot,
 		freq: defaultSendFrequency,
+		fs:   static.Assets,
 	}
 
 	for _, opt := range opts {
@@ -86,7 +98,7 @@ func RouteRegister(rg gin.IRouter, opts ...OptionFunc) error {
 	}
 	prefixRouter := rg.Group(s.root)
 	{
-		prefixRouter.GET("/", gin.WrapF(IndexAtRoot(s.root)))
+		prefixRouter.GET("/", gin.WrapF(IndexAtRootWithFs(s.root, s.fs)))
 		prefixRouter.GET("/ws", gin.WrapH(NewWsHandler(s.freq)))
 	}
 	return nil
